@@ -174,9 +174,9 @@ describe('state', function () {
     return jasmine.getEnv().currentSpec.$injector.get(what);
   }
 
-  function initStateTo(state, optionalParams) {
+  function initStateTo(state, optionalParams, optionalOptions) {
     var $state = $get('$state'), $q = $get('$q');
-    $state.transitionTo(state, optionalParams || {});
+    $state.transitionTo(state, optionalParams || {}, optionalOptions || {});
     $q.flush();
     expect($state.current).toBe(state);
   }
@@ -209,7 +209,7 @@ describe('state', function () {
       initStateTo(RS);
       $location.search({term: 'hello'});
       var called;
-      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams) {
+      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams, options) {
         called = true
       });
       $q.flush();
@@ -221,7 +221,7 @@ describe('state', function () {
       initStateTo(RS);
       $location.search({term: 'hello'});
       var called;
-      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams) {
+      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams, options) {
         called = true
       });
       $q.flush();
@@ -233,7 +233,7 @@ describe('state', function () {
       initStateTo(RS);
       var called;
       $state.go(".", { term: 'goodbye' });
-      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams) {
+      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams, options) {
         called = true
       });
       $q.flush();
@@ -246,7 +246,7 @@ describe('state', function () {
       initStateTo(RSP, { doReload: 'foo' });
       expect($state.params.doReload).toEqual('foo');
       var called;
-      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams) {
+      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams, options) {
         called = true
       });
       $state.transitionTo(RSP, { doReload: 'bar' });
@@ -262,9 +262,9 @@ describe('state', function () {
     }));
 
     it('triggers $stateChangeStart', inject(function ($state, $q, $rootScope) {
-      initStateTo(E, { i: 'iii' });
+      initStateTo(E, { i: 'iii' }, {anOption:true});
       var called;
-      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams) {
+      $rootScope.$on('$stateChangeStart', function (ev, to, toParams, from, fromParams, options) {
         expect(from).toBe(E);
         expect(fromParams).toEqual({ i: 'iii' });
         expect(to).toBe(D);
@@ -274,7 +274,7 @@ describe('state', function () {
         expect($state.params).toEqual(fromParams);
         called = true;
       });
-      $state.transitionTo(D, { x: '1', y: '2' });
+      $state.transitionTo(D, { x: '1', y: '2' }, {anOption:false});
       $q.flush();
       expect(called).toBeTruthy();
       expect($state.current).toBe(D);
